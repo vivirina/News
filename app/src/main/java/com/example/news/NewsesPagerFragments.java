@@ -109,7 +109,8 @@ public class NewsesPagerFragments extends NewsSelectingFragment implements NewsL
     public void onResume() {
         super.onResume();
         selectedNews.addListener(this);
-        selectedNews.update(selectedNews.getNumber());
+        //selectedNews.update(selectedNews.getNumber());
+        selectedNews.update();
     }
 
     @Override

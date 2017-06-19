@@ -1,6 +1,7 @@
 package com.example.news;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.news.api.Request;
 import com.example.news.api.Response;
@@ -31,19 +32,27 @@ public class News{
         this.category = category;
     }
 
-    public News(JSONObject json) throws JSONException{
+    public void parseJson(JSONObject json)throws JSONException {
         this.number = json.getInt("id");
         this.title = json.getString("title");
         this.shortdescription = json.getString("shortDescription");
-        this.fulldescription = json.getString("fullDescription");
-        //this.category = category;
+        if (json.has("fullDescription")) {
+            this.fulldescription = json.getString("fullDescription");
+        }
+        this.category = category;
+    }
+
+    public News(JSONObject json)throws JSONException{
+        parseJson(json);
     }
 
     public News(JSONObject json, Category category) throws JSONException{
         this.number = json.getInt("id");
         this.title = json.getString("title");
         this.shortdescription = json.getString("shortDescription");
-        this.fulldescription = json.getString("fullDescription");
+        if (json.has("fullDescription")) {
+            this.fulldescription = json.getString("fullDescription");
+        }
         //this.category = category;
     }
 
@@ -107,7 +116,7 @@ public class News{
         listeners.remove(listener);
     }
 
-    public void update(final int newsId){
+    public void update(){
         if (updateInProgress){
             return;
         }
@@ -118,7 +127,7 @@ public class News{
         }
 
         Request request = new Request(ServerMethod.NEWSDETAILS,"GET");
-        request.addParameter("id",Integer.toString(newsId));
+        request.addParameter("id",Integer.toString(number));
         Server.performRequestAsync(request, new Server.OnRequestListener(){
 
             @Override
@@ -129,11 +138,7 @@ public class News{
                     try {
                         JSONObject json = response.getJson();
                         JSONObject obj = json.getJSONObject("news");
-                        News news = new News(obj);
-                        News.this.number = news.number;
-                        News.this.title = news.title;
-                        News.this.shortdescription = news.shortdescription;
-                        News.this.fulldescription = news.fulldescription;
+                        parseJson(json);
                     }
                     catch (JSONException e){
                         Log.e("NewsDetails","Failed to update newsdetails", e);
@@ -150,6 +155,5 @@ public class News{
             }
         });
     }
-
     //   добавлено (конец)
 }
